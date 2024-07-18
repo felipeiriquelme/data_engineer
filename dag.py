@@ -1,45 +1,34 @@
-from datetime import datetime, timedelta
-from airflow import DAG
-from airflow.operators.bash import BashOperator
+# dag.py
 
-# Define los argumentos por defecto del DAG
+from airflow import DAG
+from datetime import datetime, timedelta
+from airflow.operators.python_operator import PythonOperator
+
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email_on_failure': False,
-    'email_on_retry': False,
+    'start_date': datetime(2024, 1, 1),
+    'email_on_failure': "felipeiriquelmeespinoza@gmail.com",
+    'email_on_retry': "felipeiriquelmeespinoza@gmail.com",
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
 
-# Define el DAG
 dag = DAG(
-    'my_dag',
+    'wom-dag',
     default_args=default_args,
-    description='A simple tutorial DAG',
-    schedule_interval=timedelta(days=1),
-    start_date=datetime(2023, 1, 1),
-    catchup=False,
+    description='Process WOM CSV file and load into BigQuery',
+    schedule_interval=None,
 )
 
-# Define las tareas
-t1 = BashOperator(
-    task_id='print_date',
-    bash_command='date',
+def my_task():
+    # Aquí va la lógica de tu tarea
+    pass
+
+task1 = PythonOperator(
+    task_id='task1',
+    python_callable=my_task,
     dag=dag,
 )
 
-t2 = BashOperator(
-    task_id='sleep',
-    bash_command='sleep 5',
-    dag=dag,
-)
 
-t3 = BashOperator(
-    task_id='print_hello',
-    bash_command='echo "Hello World"',
-    dag=dag,
-)
-
-# Configura las dependencias de las tareas
-t1 >> t2 >> t3
